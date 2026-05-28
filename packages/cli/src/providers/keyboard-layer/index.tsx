@@ -1,9 +1,10 @@
-import React, { 
-  createContext, 
-  useContext, 
-  useState, 
-  useCallback, 
-  useRef
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
 } from "react";
 import { useKeyboard, useRenderer } from "@opentui/react";
 
@@ -16,12 +17,21 @@ type KeyboardLayerContextValue = {
   setResponder: (id: string, responder: Responder | null) => void;
 };
 
-const KeyboardLayerContext = createContext<KeyboardLayerContextValue | null>(null);
+const KeyboardLayerContext = createContext<KeyboardLayerContextValue | null>(
+  null,
+);
 
-export function KeyboardLayerProvider({ children }: { children: React.ReactNode }) {
+export function KeyboardLayerProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [stack, setStack] = useState<string[]>(["base"]);
   const stackRef = useRef(stack);
-  stackRef.current = stack;
+
+  useEffect(() => {
+    stackRef.current = stack;
+  }, [stack]);
 
   const responders = useRef<Map<string, Responder>>(new Map());
   const renderer = useRenderer();
@@ -52,16 +62,16 @@ export function KeyboardLayerProvider({ children }: { children: React.ReactNode 
     [stack],
   );
 
-  const setResponder = useCallback((
-    id: string,
-    responder: Responder | null
-  ) => {
-    if (responder) {
-      responders.current.set(id, responder);
-    } else {
-      responders.current.delete(id);
-    }
-  }, []);
+  const setResponder = useCallback(
+    (id: string, responder: Responder | null) => {
+      if (responder) {
+        responders.current.set(id, responder);
+      } else {
+        responders.current.delete(id);
+      }
+    },
+    [],
+  );
 
   // Single ctrl+c handler that walks the responder chain
   useKeyboard((key) => {
@@ -74,25 +84,27 @@ export function KeyboardLayerProvider({ children }: { children: React.ReactNode 
       if (responder && responder()) {
         return;
       }
-    };
+    }
 
     // No responder handled it — exit
     renderer.destroy();
   });
 
   return (
-    <KeyboardLayerContext.Provider 
+    <KeyboardLayerContext.Provider
       value={{ push, pop, isTopLayer, setResponder }}
     >
       {children}
     </KeyboardLayerContext.Provider>
   );
-};
+}
 
 export function useKeyboardLayer() {
   const context = useContext(KeyboardLayerContext);
   if (!context) {
-    throw new Error("useKeyboardLayer must be used within a KeyboardLayerProvider");
+    throw new Error(
+      "useKeyboardLayer must be used within a KeyboardLayerProvider",
+    );
   }
   return context;
-};
+}
