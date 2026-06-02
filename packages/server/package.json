@@ -10,8 +10,10 @@
     },
     "dependencies": {
         "@hono/zod-validator": "^0.8.0",
-        "@nyxcode/shared": "workspace:*",
         "@nyxcode/database": "workspace:*",
+        "@nyxcode/shared": "workspace:*",
+        "@sentry/bun": "^10.55.0",
+        "@sentry/hono": "^10.55.0",
         "dotenv": "^17.4.2",
         "hono": "^4.12.23",
         "zod": "^4.4.3"
