@@ -20,6 +20,7 @@
     "@nyxcode/shared": "workspace:*",
     "@opentui/core": "^0.2.15",
     "@opentui/react": "^0.2.15",
+    "date-fns": "^4.4.0",
     "eventsource-parser": "^3.1.0",
     "hono": "^4.12.23",
     "opentui-spinner": "^0.0.6",
