@@ -3,7 +3,7 @@ export type ModelPricing = {
   outputUsdPerMillionTokens: number;
 };
 
-export type SupportedProvider = "anthropic" | "openai";
+export type SupportedProvider = "google" | "openai";
 
 type SupportedChatModelDefinition = {
   id: string;
@@ -13,27 +13,19 @@ type SupportedChatModelDefinition = {
 
 export const SUPPORTED_CHAT_MODELS = [
   {
-    id: "claude-sonnet-4-6",
-    provider: "anthropic",
+    id: "gemini-2.5-flash-lite",
+    provider: "google",
     pricing: {
-      inputUsdPerMillionTokens: 3,
-      outputUsdPerMillionTokens: 15,
+      inputUsdPerMillionTokens: 0.075,
+      outputUsdPerMillionTokens: 0.3,
     },
   },
   {
-    id: "claude-haiku-4-5",
-    provider: "anthropic",
+    id: "gemini-1.5-pro",
+    provider: "google",
     pricing: {
-      inputUsdPerMillionTokens: 1,
+      inputUsdPerMillionTokens: 1.25,
       outputUsdPerMillionTokens: 5,
-    },
-  },
-  {
-    id: "claude-opus-4-6",
-    provider: "anthropic",
-    pricing: {
-      inputUsdPerMillionTokens: 5,
-      outputUsdPerMillionTokens: 25,
     },
   },
   {
@@ -69,4 +61,4 @@ export function findSupportedChatModel(modelId: string) {
   return SUPPORTED_CHAT_MODELS.find((model) => model.id === modelId);
 }
 
-export const DEFAULT_CHAT_MODEL_ID: SupportedChatModelId = "claude-opus-4-6";
+export const DEFAULT_CHAT_MODEL_ID: SupportedChatModelId = "gemini-2.5-flash-lite";
