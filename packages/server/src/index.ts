@@ -6,6 +6,8 @@ import * as Sentry from "@sentry/hono/bun";
 import type { Context } from "hono";
 
 import sessions from "./routes/sessions";
+import chat from "./routes/chat";
+
 
 const app = new Hono();
 
@@ -55,8 +57,7 @@ app.onError((error: Error, c: Context) => {
   return c.json({ error: "Internal server error" }, 500);
 });
 
-const routes = app.route("/sessions", sessions);
-
+const routes = app.route("/sessions", sessions).route("/chat", chat);
 export type AppType = typeof routes;
 // idleTimeout must be high, otherwise LLM tool calls might not complete
 export default { port: 3000, fetch: app.fetch, idleTimeout: 255 };
