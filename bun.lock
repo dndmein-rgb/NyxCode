@@ -51,15 +51,20 @@
       "dependencies": {
         "@ai-sdk/google": "^3.0.11",
         "@ai-sdk/openai": "^3.0.67",
+        "@ai-sdk/provider-utils": "^4.0.27",
         "@hono/zod-validator": "^0.8.0",
         "@nyxcode/database": "workspace:*",
         "@nyxcode/shared": "workspace:*",
         "@sentry/bun": "^10.55.0",
         "@sentry/hono": "^10.55.0",
+        "@types/bun": "latest",
         "ai": "^6.0.194",
         "dotenv": "^17.4.2",
         "hono": "^4.12.23",
         "zod": "^4.4.3",
+      },
+      "devDependencies": {
+        "@types/node": "^25.5.2",
       },
     },
     "packages/shared": {
