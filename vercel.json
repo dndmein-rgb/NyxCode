@@ -1,8 +1,6 @@
 {
   "buildCommand": "cd packages/server && bun run build",
   "installCommand": "bun install",
-  "devCommand": "cd packages/server && bun run dev",
-  "framework": "other",
   "outputDirectory": "packages/server/dist"
-
 }
+
