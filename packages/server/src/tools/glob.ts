@@ -1,3 +1,4 @@
+/// <reference types="bun" />
 import { resolve, relative } from "path";
 import { tool } from "ai";
 import { z } from "zod";
