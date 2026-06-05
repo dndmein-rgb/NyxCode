@@ -1,12 +1,11 @@
 import { Hono } from "hono";
 // import { HTTPException } from "hono/http-exception";
 import { zValidator } from "@hono/zod-validator";
-import * as Sentry from "@sentry/hono/bun";
-
 import { z } from "zod";
 import { db } from "@nyxcode/database/client";
 import { Role, Mode, MessageStatus } from "@nyxcode/database/enums";
 import { findSupportedChatModel } from "@nyxcode/shared";
+import type { AuthenticatedEnv } from "../middleware/require-auth";
 
 const createSessionSchema = z.object({
   title: z.string(),
@@ -16,40 +15,31 @@ const createSessionSchema = z.object({
       role: z.enum(Role),
       content: z.string(),
       mode: z.enum(Mode),
-      model: z
-        .string()
+      model: z.string()
         .refine((id) => !!findSupportedChatModel(id), "Unsupported model"),
     })
     .optional(),
 });
 
 const createSessionValidator = zValidator(
-  "json",
-  createSessionSchema,
-  (result, c) => {
-    if (!result.success) {
-      Sentry.logger.warn("Session creation validation failed", {
-        path: c.req.path,
-        issues: result.error.issues.length,
-      });
-      return c.json({ error: "Invalid request body" }, 400);
-    }
-  },
-);
+  "json", createSessionSchema, (result, c) => {
+  if (!result.success) {
+    return c.json({ error: "Invalid request body" }, 400);
+  }
+});
 
-const app = new Hono()
+const app = new Hono<AuthenticatedEnv>()
   .get("/", async (c) => {
+    const userId = c.get("userId");
+
     const sessions = await db.session.findMany({
+      where: { userId },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
         title: true,
         createdAt: true,
       },
-    });
-
-    Sentry.logger.info("Listed Sessions", {
-      count: sessions.length,
     });
 
     return c.json(sessions);
@@ -60,30 +50,23 @@ const app = new Hono()
 
     // MOCK: Uncomment to simulate session loading error
     // throw new HTTPException(
-    //   500,
+    //   500, 
     //   { message: "Mock error: session loading failed" }
     // )
 
     const id = c.req.param("id");
-
+    const userId = c.get("userId");
+    
     const session = await db.session.findUnique({
-      where: { id },
+      where: { id, userId },
       include: {
         messages: { orderBy: { createdAt: "asc" } },
       },
     });
 
     if (!session) {
-      Sentry.logger.warn("Session not found",{
-        sessionId:id,
-        userId:"mock-user"
-      })
       return c.json({ error: "Session not found" }, 404);
     }
-
-    Sentry.logger.info("Loaded Session",{
-      sessionId:session.id,
-    })
 
     return c.json(session);
   })
@@ -93,16 +76,17 @@ const app = new Hono()
 
     // MOCK: Uncomment to simulate session loading error
     // throw new HTTPException(
-    //   500,
+    //   500, 
     //   { message: "Mock error: session loading failed" }
     // )
 
+    const userId = c.get("userId");
     const { initialMessage, ...data } = c.req.valid("json");
 
     const session = await db.session.create({
       data: {
         ...data,
-        userId: "mock-user",
+        userId,
         ...(initialMessage && {
           messages: {
             create: {
@@ -110,16 +94,11 @@ const app = new Hono()
               status: MessageStatus.COMPLETE,
             },
           },
-        }),
+        })
       },
       include: { messages: true },
     });
 
-
-      Sentry.logger.info("Created Session",{
-      sessionId:session.id,
-      title:session.title,
-    })
     return c.json(session, 201);
   });
 
