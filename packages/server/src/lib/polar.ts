@@ -143,14 +143,7 @@ export async function getCustomerDebugInfo(customerExternalId: string) {
       activeMeters: customerState.activeMeters.map((meter) => ({
         meterId: meter.meterId,
         balance: meter.balance,
-        type: meter.type,
       })),
-      orders:
-        customerState.orders?.map((order) => ({
-          id: order.id,
-          status: order.status,
-          createdAt: order.createdAt,
-        })) || [],
     };
   } catch (error) {
     throw error;
